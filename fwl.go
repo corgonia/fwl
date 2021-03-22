@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -190,8 +191,7 @@ func GetStableHashCode(str string) int32 {
 // GenerateUID creates a random UID based on the World information
 func (w *World) GenerateUID() int64 {
 	// Create a new seeded random source
-	randSource := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(randSource)
+	seed := time.Now().UnixNano()
 
 	// Try to incorporate the system's hostname in the UID like Valheim does
 	hostName, _ := os.Hostname()
@@ -199,8 +199,18 @@ func (w *World) GenerateUID() int64 {
 		hostName = "unknown"
 	}
 
-	// Hash the host name, world name, and world seed to a unique value
-	hash := GetStableHashCode(hostName + ":" + w.Name + ":" + w.Seed)
+	// Actually generate the UID. Code above is to make this testable.
+	return w.generateUID(hostName, seed)
+}
+
+func (w *World) generateUID(hostname string, seed int64) int64 {
+	// Create a new seeded random source
+	randSource := rand.NewSource(seed)
+	r := rand.New(randSource)
+
+	// Hash the host name, world name, and world seed value to a unique value
+	// We dont use the world seed name because that can change and is irrelevant to the client
+	hash := GetStableHashCode(hostname + ":" + w.Name + ":" + strconv.FormatInt(int64(w.SeedValue), 10))
 
 	var result int64
 
