@@ -1,4 +1,4 @@
-// Valheim .fwl world metadata file import/export package
+// Package fwl provides Valheim .fwl world metadata file import/export
 package fwl
 
 import (
@@ -11,7 +11,11 @@ import (
 
 var (
 	// Based on the latest version of Valheim on 20 March 2021
-	DefaultWorldVersion    int32 = 26
+
+	// DefaultWorldVersion is the default value for world file version
+	DefaultWorldVersion int32 = 26
+
+	// DefaultWorldGenVersion is the default value for world generation type
 	DefaultWorldGenVersion int32 = 1
 )
 
@@ -183,7 +187,7 @@ func GetStableHashCode(str string) int32 {
 	return hash1 + (hash2 * 1566083941)
 }
 
-// Generates a random UID based on the World information
+// GenerateUID creates a random UID based on the World information
 func (w *World) GenerateUID() int64 {
 	// Create a new seeded random source
 	randSource := rand.NewSource(time.Now().UnixNano())
@@ -195,16 +199,16 @@ func (w *World) GenerateUID() int64 {
 		hostName = "unknown"
 	}
 
-	var result int64
-
 	// Hash the host name, world name, and world seed to a unique value
 	hash := GetStableHashCode(hostName + ":" + w.Name + ":" + w.Seed)
+
+	var result int64
 
 	// Shift it into the left part of a 64 bit int
 	result = int64(hash) << 32
 
 	// Set the right part to some random numbers
-	result = +int64(r.Int31())
+	result = result + int64(r.Int31())
 
 	return result
 }
