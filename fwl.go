@@ -35,9 +35,6 @@ func (w *World) MarshalBinary() (data []byte, err error) {
 
 	var out = bytes.Buffer{}
 
-	if w.WorldVersion == 0 {
-		w.WorldVersion = DefaultWorldVersion
-	}
 	err = binary.Write(&out, binary.LittleEndian, w.WorldVersion)
 	if err != nil {
 		return nil, err
@@ -63,15 +60,9 @@ func (w *World) MarshalBinary() (data []byte, err error) {
 		return nil, err
 	}
 
-	seedValue := GetStableHashCode(w.Seed)
-
-	err = binary.Write(&out, binary.LittleEndian, seedValue)
+	err = binary.Write(&out, binary.LittleEndian, w.SeedValue)
 	if err != nil {
 		return nil, err
-	}
-	if w.UID == 0 {
-		r := rand.NewSource(time.Now().UnixNano())
-		w.UID = r.Int63()
 	}
 
 	//  UID = w.UID
@@ -80,9 +71,6 @@ func (w *World) MarshalBinary() (data []byte, err error) {
 		return nil, err
 	}
 
-	if w.WorldGenVersion == 0 {
-		w.WorldGenVersion = DefaultWorldGenVersion
-	}
 	err = binary.Write(&out, binary.LittleEndian, w.WorldGenVersion)
 	if err != nil {
 		return nil, err
